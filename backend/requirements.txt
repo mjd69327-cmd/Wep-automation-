@@ -2,7 +2,7 @@ fastapi
 uvicorn
 motor
 pymongo
-pydantic
+pydantic[email]
 python-dotenv
 google-auth
 google-auth-oauthlib
