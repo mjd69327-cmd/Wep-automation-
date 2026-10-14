@@ -11,14 +11,14 @@ import {
   FileText,
   Receipt,
   ShoppingCart,
-  IdCard,
+  CreditCard,
   X,
   Loader2,
   Plus,
   CheckCircle2,
 } from "lucide-react";
 
-const iconMap = { FileText, Receipt, ShoppingCart, IdCard };
+const iconMap = { FileText, Receipt, ShoppingCart, CreditCard };
 
 export default function Upload() {
   const { t, lang } = useLang();

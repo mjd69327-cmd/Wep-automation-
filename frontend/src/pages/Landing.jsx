@@ -9,7 +9,7 @@ import {
   ArrowRight,
   Zap,
   LayoutTemplate,
-  Columns2,
+  Columns,
   Table,
   FileSpreadsheet,
   BadgeCheck,
@@ -17,7 +17,7 @@ import {
   FileText,
   Receipt,
   ShoppingCart,
-  IdCard,
+  CreditCard,
   Play,
 } from "lucide-react";
 
@@ -28,7 +28,7 @@ export default function Landing() {
   const features = [
     { icon: Zap, title: t("feat_1_title"), desc: t("feat_1_desc"), color: "bg-indigo-50 text-indigo-600" },
     { icon: LayoutTemplate, title: t("feat_2_title"), desc: t("feat_2_desc"), color: "bg-teal-50 text-teal-600" },
-    { icon: Columns2, title: t("feat_3_title"), desc: t("feat_3_desc"), color: "bg-amber-50 text-amber-600" },
+    { icon: Columns, title: t("feat_3_title"), desc: t("feat_3_desc"), color: "bg-amber-50 text-amber-600" },
     { icon: FileSpreadsheet, title: t("feat_4_title"), desc: t("feat_4_desc"), color: "bg-green-50 text-green-600" },
     { icon: Table, title: t("feat_5_title"), desc: t("feat_5_desc"), color: "bg-rose-50 text-rose-600" },
     { icon: BadgeCheck, title: t("feat_6_title"), desc: t("feat_6_desc"), color: "bg-violet-50 text-violet-600" },
@@ -38,7 +38,7 @@ export default function Landing() {
     { icon: FileText, label: lang === "ar" ? "فاتورة" : "Invoice" },
     { icon: Receipt, label: lang === "ar" ? "إيصال" : "Receipt" },
     { icon: ShoppingCart, label: lang === "ar" ? "أمر شراء" : "Purchase Order" },
-    { icon: IdCard, label: lang === "ar" ? "بطاقة هوية" : "ID Card" },
+    { icon: CreditCard, label: lang === "ar" ? "بطاقة هوية" : "ID Card" },
   ];
 
   return (

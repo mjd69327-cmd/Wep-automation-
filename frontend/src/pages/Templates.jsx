@@ -23,14 +23,14 @@ import {
   FileText,
   Receipt,
   ShoppingCart,
-  IdCard,
+  CreditCard,
   Plus,
   Trash2,
   LayoutTemplate,
   Upload as UploadIcon,
 } from "lucide-react";
 
-const iconMap = { FileText, Receipt, ShoppingCart, IdCard };
+const iconMap = { FileText, Receipt, ShoppingCart, CreditCard };
 
 const defaultField = () => ({
   key: "",

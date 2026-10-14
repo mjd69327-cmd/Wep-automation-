@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import api, { API } from "@/lib/apiClient";
-import { useAuth } from "@/context/AuthContext";
-import { useLang } from "@/context/LangContext";
-import AppShell from "@/components/AppShell";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import api, { API } from "../lib/apiClient";
+import { useAuth } from "../context/AuthContext";
+import { useLang } from "../context/LangContext";
+import AppShell from "../components/AppShell";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Progress } from "../components/ui/progress";
 import { toast } from "sonner";
 import { Mail, User, CreditCard, Zap, FileSpreadsheet, CheckCircle2, LogOut, Info, Crown, Sparkles, Loader2 } from "lucide-react";
 
