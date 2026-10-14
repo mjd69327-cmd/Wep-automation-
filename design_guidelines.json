@@ -1,0 +1,98 @@
+{
+  "theme": "light",
+  "typography": {
+    "headings": {
+      "fontFamily": "Outfit, sans-serif",
+      "weights": ["600", "700", "800"],
+      "instructions": "Use Outfit for all English headers. Use Tajawal or Cairo for Arabic headers (add via Google Fonts). Maintain tight tracking (tracking-tight) for headers above 32px."
+    },
+    "body": {
+      "fontFamily": "Plus Jakarta Sans, sans-serif",
+      "weights": ["400", "500"],
+      "instructions": "Use Plus Jakarta Sans for English body text, Tajawal for Arabic. Standard line-height (leading-relaxed)."
+    }
+  },
+  "colors": {
+    "primary": {
+      "base": "#4338CA",
+      "hover": "#3730A3",
+      "foreground": "#FFFFFF",
+      "description": "Deep Indigo for primary actions and CTA buttons to create a bold, confident feel."
+    },
+    "secondary": {
+      "base": "#0D9488",
+      "hover": "#0F766E",
+      "foreground": "#FFFFFF",
+      "description": "Mint/Cyan accent for highlights, hover states, and 'Upload/Success' states."
+    },
+    "background": {
+      "base": "#FAFAFA",
+      "card": "#FFFFFF",
+      "description": "Clean white theme. Ensure strong contrast."
+    },
+    "text": {
+      "main": "#111827",
+      "muted": "#4B5563"
+    },
+    "status": {
+      "warning": "#F59E0B",
+      "success": "#10B981",
+      "error": "#EF4444"
+    }
+  },
+  "visual_enhancers": {
+    "shadows": "Use soft ambient shadows (shadow-sm) for dashboard cards and slightly elevated shadows (shadow-lg, shadow-indigo-500/20) for primary CTA buttons.",
+    "borders": "1px solid #E5E7EB for cards. Split-view should have a definitive central border.",
+    "radius": "rounded-xl for cards, rounded-lg for inputs, rounded-full for pill buttons.",
+    "micro_interactions": "Hover states on all buttons. Drag and Drop zone should highlight (bg-indigo-50/50, border-indigo-500) when dragging over. Split-view document fields highlight both the bounding box on the image and the input field on hover."
+  },
+  "layouts": {
+    "bilingual": "Full RTL support. Use logical Tailwind CSS properties (e.g., ms-*, me-*, ps-*, pe-*) instead of physical (ml-*, mr-*) to ensure seamless switching between Arabic and English. Apply dir='rtl' to the HTML/body when Arabic is selected.",
+    "landing_page": "Bento grid or Tetris grid for features. Massive centered bold text for Hero. Clear nav with Language Toggle.",
+    "dashboard": "Sidebar on the start edge (left for LTR, right for RTL). Main content area with a max-width for readability.",
+    "split_view": "h-[calc(100vh-theme(spacing.16))] layout. 50/50 split. Left side: Scrollable document viewer. Right side: Scrollable form list."
+  },
+  "components_instructions": {
+    "UploadZone": "Prominent, dashed border (border-2 border-dashed border-gray-300), centered icon, subtle background tint.",
+    "SplitViewEditor": "Use sticky headers for the document title. Use a visual 'bounding box' overlay on the document image that maps to form fields.",
+    "ConfidenceScore": "Small pill badges next to inputs. Red (<50%), Yellow (50-80%), Green (>80%).",
+    "TemplatePicker": "Grid of 4 cards (Invoice, Receipt, PO, ID) with subtle icons."
+  },
+  "grids": {
+    "features": "grid-cols-1 md:grid-cols-3 gap-8",
+    "stats": "grid-cols-1 md:grid-cols-3 gap-6"
+  },
+  "motion": {
+    "transitions": "Add smooth transitions to hover states (transition-colors duration-200).",
+    "entrances": "Staggered fade-in for dashboard list items and landing page feature cards."
+  },
+  "accessibility": {
+    "keyboard": "CRITICAL for Split-View Editor: Must support Tab to move between fields and Enter to confirm.",
+    "contrast": "Ensure text over brand colors meets APCA standards.",
+    "data_testid": "Apply data-testid to ALL interactive elements (e.g., login-button, upload-dropzone, field-invoice-total, review-submit-btn, lang-toggle)."
+  },
+  "image_urls": [
+    {
+      "url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwxfHxkYXNoYm9hcmQlMjBpbnRlcmZhY2UlMjBtb2NrdXAlMjBjbGVhbnxlbnwwfHx8fDE3OTE5Njk5NDd8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Dashboard analytics mockup for landing page graphics",
+      "category": "hero_graphic"
+    },
+    {
+      "url": "https://images.unsplash.com/photo-1758691737605-69a0e78bd193?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODh8MHwxfHNlYXJjaHwxfHxoYXBweSUyMHByb2Zlc3Npb25hbCUyMGFjY291bnRhbnQlMjBwb3J0cmFpdHxlbnwwfHx8fDE3OTE5Njk5NDd8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Smiling professional accountant for testimonials",
+      "category": "testimonial_avatar"
+    }
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You have .js files not .tsx files, so write valid React JavaScript (.jsx/.js) syntax.",
+    "Do not center-align the app container. Use proper layout containers.",
+    "Do not use generic 'transition: all'. Target specific properties.",
+    "Use Phosphor icons, Lucide React, or react-icons for UI elements and logos (e.g., FaGoogle for login). Do not use placeholders for logos.",
+    "Use sonner for toast notifications.",
+    "Support dynamic RTL: When switching language to Arabic, set dir='rtl' on HTML or main wrapper, and ensure all padding/margins use logical properties (ps-4 instead of pl-4).",
+    "The UI should feel like a high-end tool (Linear/Notion) - meaning tight spacing, crisp 1px borders, muted secondary text, and focus on content.",
+    "DO NOT use teal blue (#1B93A4) for dashboards. Stick to Indigo and Cyan/Mint.",
+    "All interactive and key informational elements MUST include a data-testid attribute.",
+    "Do NOT use complete transparent backgrounds for headers or dropdowns to ensure legibility."
+  ]
+}

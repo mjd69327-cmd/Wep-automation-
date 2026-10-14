@@ -1,0 +1,8 @@
+crons:
+  - name: monthly-usage-reset
+    description: "Resets per-user monthly page counters at 00:05 UTC on the first of each month"
+    cron: "5 0 1 * *"
+    endpoint: "{{BASE_URL}}/api/cron/monthly-reset"
+    method: POST
+    # Cron endpoints must ack 2xx immediately; enqueue/background the actual work.
+    enabled: true
