@@ -19,7 +19,13 @@ from io import BytesIO
 import openpyxl
 import csv
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage, FileContentWithMimeType
+# Safe import for emergentintegrations to prevent production crash if not installed
+try:
+    from emergentintegrations.llm.chat import LlmChat, UserMessage, FileContentWithMimeType
+except ImportError:
+    LlmChat = None
+    UserMessage = None
+    FileContentWithMimeType = None
 
 # Google Sheets
 from google_auth_oauthlib.flow import Flow
