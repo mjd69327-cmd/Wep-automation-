@@ -17,15 +17,6 @@ import httpx
 import uvicorn
 from io import BytesIO
 import openpyxl
-import csv
-
-# Safe import for emergentintegrations to prevent production crash if not installed
-try:
-    from emergentintegrations.llm.chat import LlmChat, UserMessage, FileContentWithMimeType
-except ImportError:
-    LlmChat = None
-    UserMessage = None
-    FileContentWithMimeType = None
 
 # Google Sheets
 from google_auth_oauthlib.flow import Flow
@@ -36,9 +27,6 @@ from google.oauth2.credentials import Credentials
 # Stripe
 import stripe
 import hmac as _hmac
-
-# Email helpers
-from email_service import send_email, welcome_email, extraction_complete_email, payment_success_email
 
 app = FastAPI(title="Wep Automation API")
 
@@ -54,6 +42,7 @@ MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 JWT_SECRET = os.getenv("JWT_SECRET", "super-secret-key-change-me")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+EMERGENT_EMAIL_KEY = os.getenv("EMERGENT_EMAIL_KEY", "")
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY") or "sk_test_emergent"
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
@@ -83,6 +72,10 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     except jwt.PyJWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
+# Inline dummy mail sender to avoid external import errors on Render
+async def send_email(to: str, subject: str, html: str):
+    pass
+
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok", "timestamp": datetime.datetime.utcnow().isoformat()}
@@ -111,11 +104,6 @@ async def register(req: RegisterRequest):
     }
     await db.users.insert_one(user_doc)
     token = create_jwt(user_id)
-    try:
-        subj, html = welcome_email(req.name, req.lang)
-        await send_email(to=req.email, subject=subj, html=html)
-    except Exception:
-        pass
     user_doc.pop("password_hash", None)
     user_doc.pop("_id", None)
     return {"token": token, "user": user_doc}
