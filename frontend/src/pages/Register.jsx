@@ -37,7 +37,7 @@ export default function Register() {
 
   const googleLogin = () => {
     const redirectUrl = window.location.origin + "/auth-callback";
-    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+    window.location.href = `https://wep-automation.onrender.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
 
   return (
