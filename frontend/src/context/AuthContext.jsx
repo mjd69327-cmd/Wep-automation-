@@ -10,8 +10,9 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = useCallback(async () => {
     try {
       const { data } = await api.get("/auth/me");
-      setUser(data);
+      setUser(data.user);
     } catch (e) {
+      localStorage.removeItem("df_token");
       setUser(null);
     } finally {
       setLoading(false);

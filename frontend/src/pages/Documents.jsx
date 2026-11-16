@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "../context/TranslationContext";
+import { useLang } from "../context/LangContext";
 import { Button } from "../components/ui/button";
-import { api } from "../utils/api";
+import AppShell from "../components/AppShell";
+import api from "../lib/apiClient";
 import { toast } from "sonner";
 import {
   FileText,
@@ -37,7 +38,7 @@ import { Checkbox } from "../components/ui/checkbox";
 import { Badge } from "../components/ui/badge";
 
 export default function Documents() {
-  const { t, lang } = useTranslation();
+  const { t, lang } = useLang();
   const navigate = useNavigate();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -164,7 +165,8 @@ export default function Documents() {
   };
 
   return (
-    <div className="space-y-6">
+    <AppShell>
+      <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t("nav_documents")}</h1>
@@ -199,9 +201,11 @@ export default function Documents() {
                   <DropdownMenuItem onClick={exportCsv} data-testid="export-csv">
                     <TableIcon className="w-4 h-4 me-2 text-blue-600" /> {t("review_export_csv")}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={exportSheets} data-testid="export-sheets">
-                    <FileSpreadsheet className="w-4 h-4 me-2" /> {t("review_export_sheets")}
-                  </DropdownMenuItem>
+                  {sheetsConnected && (
+                    <DropdownMenuItem onClick={exportSheets} data-testid="export-sheets">
+                      <FileSpreadsheet className="w-4 h-4 me-2" /> {t("review_export_sheets")}
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
@@ -288,6 +292,7 @@ export default function Documents() {
           </TableBody>
         </Table>
       </div>
-    </div>
+      </div>
+    </AppShell>
   );
 }

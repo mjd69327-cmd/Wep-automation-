@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
+import api from "../lib/apiClient";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -11,7 +12,7 @@ import { Sparkles, Loader2, Languages } from "lucide-react";
 
 export default function Register() {
   const { register } = useAuth();
-  const { t, toggle } = useLang();
+  const { t, toggle, lang } = useLang();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -20,8 +21,8 @@ export default function Register() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+    if (password.length < 8) {
+      toast.error(lang === "ar" ? "يجب أن تكون كلمة المرور 8 أحرف على الأقل" : "Password must be at least 8 characters");
       return;
     }
     setLoading(true);
@@ -35,9 +36,13 @@ export default function Register() {
     }
   };
 
-  const googleLogin = () => {
-    const redirectUrl = window.location.origin + "/auth-callback";
-    window.location.href = `https://wep-automation.onrender.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+  const googleLogin = async () => {
+    try {
+      const { data } = await api.get("/auth/google/start");
+      window.location.assign(data.url);
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || (lang === "ar" ? "تعذّر بدء تسجيل الدخول عبر Google" : "Could not start Google sign-in"));
+    }
   };
 
   return (
@@ -110,7 +115,7 @@ export default function Register() {
             </div>
             <div>
               <Label htmlFor="password">{t("form_password")}</Label>
-              <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1.5 h-11" data-testid="register-password-input" />
+              <Input id="password" type="password" minLength={8} required value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1.5 h-11" data-testid="register-password-input" />
             </div>
             <Button type="submit" disabled={loading} className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg" data-testid="register-submit-btn">
               {loading && <Loader2 className="w-4 h-4 me-2 animate-spin" />}
