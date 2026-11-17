@@ -1,0 +1,12 @@
+# Local and deployed credentials
+.env
+**/.env
+**/.env.*
+!**/.env.example
+
+# Generated frontend and Python files
+frontend/node_modules/
+frontend/build/
+__pycache__/
+*.py[cod]
+.pytest_cache/

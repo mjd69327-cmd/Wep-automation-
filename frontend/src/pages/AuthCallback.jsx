@@ -13,29 +13,24 @@ export default function AuthCallback() {
   useEffect(() => {
     if (hasProcessed.current) return;
     hasProcessed.current = true;
-
-    const hash = location.hash || window.location.hash;
-    const match = /session_id=([^&]+)/.exec(hash || "");
-    const sessionId = match ? match[1] : null;
-
-    if (!sessionId) {
-      navigate("/login");
+    const code = new URLSearchParams(location.search).get("code");
+    if (!code) {
+      navigate("/login", { replace: true });
       return;
     }
-
     (async () => {
       try {
-        const { data } = await api.post("/auth/google/session", { session_id: sessionId });
-        localStorage.setItem("df_token", data.session_token);
+        const { data } = await api.post("/auth/google/session", { code });
+        localStorage.setItem("df_token", data.token);
         setUser(data.user);
         window.history.replaceState(null, "", "/dashboard");
-        navigate("/dashboard", { state: { user: data.user } });
-      } catch (e) {
-        console.error(e);
-        navigate("/login");
+        navigate("/dashboard", { replace: true });
+      } catch (error) {
+        localStorage.removeItem("df_token");
+        navigate("/login", { replace: true });
       }
     })();
-  }, [location, navigate, setUser]);
+  }, [location.search, navigate, setUser]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">

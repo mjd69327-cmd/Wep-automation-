@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import api, { API } from "../lib/apiClient";
+import api from "../lib/apiClient";
 import { useLang } from "../context/LangContext";
 import AppShell from "../components/AppShell";
 import { Button } from "../components/ui/button";
@@ -44,8 +44,9 @@ export default function Review() {
   const imgRef = useRef(null);
   const [imgSize, setImgSize] = useState({ w: 0, h: 0 });
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("df_token") : null;
-  const fileUrl = `${API}/documents/${id}/file${token ? `?auth=${encodeURIComponent(token)}` : ""}`;
+  const [fileUrl, setFileUrl] = useState("");
+  const [fileLoading, setFileLoading] = useState(true);
+  const [fileError, setFileError] = useState(false);
 
   const load = async () => {
     try {
@@ -83,6 +84,34 @@ export default function Review() {
   useEffect(() => {
     load();
     api.get("/oauth/sheets/status").then((r) => setSheetsConnected(r.data.connected)).catch(() => {});
+  }, [id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let objectUrl = null;
+    setFileLoading(true);
+    setFileError(false);
+    api.get(`/documents/${id}/file`, { responseType: "blob" })
+      .then(({ data }) => {
+        const url = URL.createObjectURL(data);
+        if (cancelled) {
+          URL.revokeObjectURL(url);
+          return;
+        }
+        objectUrl = url;
+        setFileUrl(url);
+        setFileLoading(false);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFileError(true);
+          setFileLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
   }, [id]);
 
   useEffect(() => {
@@ -201,9 +230,11 @@ export default function Review() {
                   <TableIcon className="w-4 h-4 me-2" /> {t("review_export_csv")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={exportSheets} data-testid="single-export-sheets">
-                  <FileSpreadsheet className="w-4 h-4 me-2" /> {t("review_export_sheets")}
-                </DropdownMenuItem>
+                {sheetsConnected && (
+                  <DropdownMenuItem onClick={exportSheets} data-testid="single-export-sheets">
+                    <FileSpreadsheet className="w-4 h-4 me-2" /> {t("review_export_sheets")}
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
             <Button onClick={save} disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white" data-testid="save-review-btn">
@@ -235,7 +266,7 @@ export default function Review() {
               {lang === "ar" ? "المستند" : "Document"}
             </div>
             <div className="flex-1 overflow-auto relative bg-gray-100 p-4 flex items-start justify-center">
-              {isImage && (
+              {isImage && fileUrl && (
                 <div className="relative inline-block">
                   <img
                     ref={imgRef}
@@ -258,13 +289,19 @@ export default function Review() {
                   )}
                 </div>
               )}
-              {isPdf && (
+              {isPdf && fileUrl && (
                 <iframe
                   src={fileUrl}
                   title="document"
                   className="w-full h-full border-0 rounded-lg bg-white"
                   data-testid="document-pdf"
                 />
+              )}
+              {(isImage || isPdf) && fileLoading && (
+                <div className="text-gray-500 text-sm p-8 text-center">{lang === "ar" ? "جاري تحميل المستند..." : "Loading document..."}</div>
+              )}
+              {(isImage || isPdf) && fileError && (
+                <div className="text-red-600 text-sm p-8 text-center">{lang === "ar" ? "تعذّر تحميل المستند" : "Could not load the document"}</div>
               )}
               {!isImage && !isPdf && (
                 <div className="text-gray-500 text-sm p-8 text-center">

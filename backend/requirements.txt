@@ -12,3 +12,5 @@ openpyxl
 requests
 httpx
 PyJWT
+python-multipart
+pypdf

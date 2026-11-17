@@ -5,6 +5,7 @@ import { useLang } from "../context/LangContext";
 import AppShell from "../components/AppShell";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
+import { Checkbox } from "../components/ui/checkbox";
 import { toast } from "sonner";
 import {
   UploadCloud,
@@ -19,6 +20,8 @@ import {
 } from "lucide-react";
 
 const iconMap = { FileText, Receipt, ShoppingCart, CreditCard };
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const isSupportedFile = (name) => /\.(pdf|jpe?g|png|webp|xlsx)$/i.test(name);
 
 export default function Upload() {
   const { t, lang } = useLang();
@@ -29,6 +32,7 @@ export default function Upload() {
   const [files, setFiles] = useState([]);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [aiConsent, setAiConsent] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -43,24 +47,33 @@ export default function Upload() {
     })();
   }, []);
 
+  const addFiles = (incoming) => {
+    const accepted = incoming.filter((file) => isSupportedFile(file.name) && file.size <= MAX_FILE_SIZE);
+    const invalidType = incoming.some((file) => !isSupportedFile(file.name));
+    const tooLarge = incoming.some((file) => isSupportedFile(file.name) && file.size > MAX_FILE_SIZE);
+    if (invalidType) toast.error(lang === "ar" ? "الصيغ المدعومة: PDF وJPG وPNG وWebP وXLSX" : "Supported formats: PDF, JPG, PNG, WebP, and XLSX");
+    if (tooLarge) toast.error(lang === "ar" ? "الحد الأقصى لحجم الملف 10 ميغابايت" : "Each file must be 10 MB or smaller");
+    if (accepted.length) setFiles((prev) => [...prev, ...accepted]);
+  };
+
   const onDrop = (e) => {
     e.preventDefault();
     setDragging(false);
-    const dropped = Array.from(e.dataTransfer.files).filter((f) =>
-      /\.(pdf|jpe?g|png|webp)$/i.test(f.name)
-    );
-    setFiles((prev) => [...prev, ...dropped]);
+    addFiles(Array.from(e.dataTransfer.files));
   };
 
   const onPick = (e) => {
-    const picked = Array.from(e.target.files);
-    setFiles((prev) => [...prev, ...picked]);
+    addFiles(Array.from(e.target.files || []));
     e.target.value = "";
   };
 
   const removeFile = (i) => setFiles((prev) => prev.filter((_, idx) => idx !== i));
 
   const start = async () => {
+    if (!aiConsent) {
+      toast.error(lang === "ar" ? "وافق على إرسال المستند إلى Gemini قبل المتابعة" : "Please consent to Gemini processing before continuing");
+      return;
+    }
     if (!selected) {
       toast.error(lang === "ar" ? "اختر قالباً أولاً" : "Select a template first");
       return;
@@ -72,10 +85,10 @@ export default function Upload() {
       const fd = new FormData();
       fd.append("file", f);
       fd.append("template_id", selected);
+      fd.append("consent_to_ai", "true");
+      fd.append("language", lang === "ar" ? "ar" : "en");
       try {
-        const { data } = await api.post("/documents/upload", fd, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        const { data } = await api.post("/documents/upload", fd);
         results.push(data);
       } catch (e) {
         const detail = e?.response?.data?.detail || "Upload failed";
@@ -159,7 +172,7 @@ export default function Upload() {
             ref={inputRef}
             type="file"
             multiple
-            accept=".pdf,.jpg,.jpeg,.png,.webp"
+            accept=".pdf,.jpg,.jpeg,.png,.webp,.xlsx"
             className="hidden"
             onChange={onPick}
             data-testid="file-input"
@@ -169,6 +182,16 @@ export default function Upload() {
           </div>
           <p className="mt-4 font-display font-semibold text-lg">{t("upload_drop_here")}</p>
           <p className="text-xs text-gray-500 mt-1">{t("upload_formats")}</p>
+        </div>
+
+        <div className="flex items-start gap-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-4 text-sm">
+          <Checkbox
+            id="ai-consent"
+            checked={aiConsent}
+            onCheckedChange={(checked) => setAiConsent(checked === true)}
+            data-testid="ai-consent-checkbox"
+          />
+          <label htmlFor="ai-consent" className="text-gray-700 leading-6 cursor-pointer">{t("upload_ai_notice")}</label>
         </div>
 
         {files.length > 0 && (
@@ -201,7 +224,7 @@ export default function Upload() {
           <div className="flex justify-end">
             <Button
               onClick={start}
-              disabled={uploading}
+              disabled={uploading || !aiConsent}
               className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full h-11 px-6 shadow-lg shadow-indigo-500/20"
               data-testid="start-upload-btn"
             >

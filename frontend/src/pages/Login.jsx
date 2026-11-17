@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
+import api from "../lib/apiClient";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -11,7 +12,7 @@ import { Sparkles, Loader2, Languages } from "lucide-react";
 
 export default function Login() {
   const { login } = useAuth();
-  const { t, toggle } = useLang();
+  const { t, toggle, lang } = useLang();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,9 +31,13 @@ export default function Login() {
     }
   };
 
-  const googleLogin = () => {
-    const redirectUrl = window.location.origin + "/auth-callback";
-    window.location.href = `https://wep-automation.onrender.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+  const googleLogin = async () => {
+    try {
+      const { data } = await api.get("/auth/google/start");
+      window.location.assign(data.url);
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || (lang === "ar" ? "تعذّر بدء تسجيل الدخول عبر Google" : "Could not start Google sign-in"));
+    }
   };
 
   return (

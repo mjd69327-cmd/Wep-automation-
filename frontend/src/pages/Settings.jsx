@@ -1,22 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import api, { API } from "../lib/apiClient";
+
+import api from "../lib/apiClient";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
 import AppShell from "../components/AppShell";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Progress } from "../components/ui/progress";
-import { toast } from "sonner";
-import { Mail, User, CreditCard, Zap, FileSpreadsheet, CheckCircle2, LogOut, Info, Crown, Sparkles, Loader2 } from "lucide-react";
+
+import { User, CreditCard, Zap, FileSpreadsheet, LogOut, Crown } from "lucide-react";
 
 export default function Settings() {
-  const { user, logout, refresh } = useAuth();
+  const { user, logout } = useAuth();
   const { t, lang } = useLang();
-  const [params] = useSearchParams();
   const [sheets, setSheets] = useState({ connected: false, configured: false });
-  const [upgrading, setUpgrading] = useState(false);
-  const [polling, setPolling] = useState(false);
 
   const loadSheets = async () => {
     try {
@@ -27,49 +24,7 @@ export default function Settings() {
 
   useEffect(() => {
     loadSheets();
-    if (params.get("sheets") === "connected") {
-      toast.success(lang === "ar" ? "تم ربط حساب Google بنجاح" : "Google account connected");
-    }
-    if (params.get("payment") === "success") {
-      const sessionId = params.get("session_id");
-      if (sessionId) {
-        setPolling(true);
-        const check = async (tries = 0) => {
-          try {
-            const { data } = await api.get(`/payments/status/${sessionId}`);
-            if (data.payment_status === "paid") {
-              toast.success(lang === "ar" ? "تمت الترقية إلى Pro 🎉" : "Upgraded to Pro 🎉");
-              refresh();
-              setPolling(false);
-              window.history.replaceState(null, "", "/settings");
-              return;
-            }
-          } catch {}
-          if (tries < 15) setTimeout(() => check(tries + 1), 2000);
-          else setPolling(false);
-        };
-        check();
-      }
-    } else if (params.get("payment") === "cancel") {
-      toast.info(lang === "ar" ? "تم إلغاء الدفع" : "Payment cancelled");
-      window.history.replaceState(null, "", "/settings");
-    }
-    // eslint-disable-next-line
   }, []);
-
-  const upgrade = async () => {
-    setUpgrading(true);
-    try {
-      const { data } = await api.post("/payments/checkout", {
-        lookup_key: "dataflow_pro_monthly",
-        origin_url: window.location.origin,
-      });
-      window.location.href = data.checkout_url;
-    } catch (e) {
-      toast.error(e?.response?.data?.detail || "Checkout failed");
-      setUpgrading(false);
-    }
-  };
 
   const usage = Math.min(100, Math.round(((user?.pages_used_month || 0) / (user?.pages_limit || 20)) * 100));
 
@@ -140,29 +95,13 @@ export default function Settings() {
                     <span className="text-sm text-gray-500 ms-1">/{lang === "ar" ? "شهرياً" : "mo"}</span>
                   </div>
                   <Button
-                    onClick={upgrade}
-                    disabled={upgrading || polling}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full"
+                    disabled
+                    className="bg-gray-300 text-gray-600 rounded-full cursor-not-allowed"
                     data-testid="upgrade-pro-btn"
                   >
-                    {(upgrading || polling) ? (
-                      <>
-                        <Loader2 className="w-4 h-4 me-2 animate-spin" />
-                        {polling ? (lang === "ar" ? "جاري التأكيد..." : "Confirming...") : "..."}
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 me-2" />
-                        {lang === "ar" ? "ترقية الآن" : "Upgrade now"}
-                      </>
-                    )}
+                    {t("pricing_cta_pro")}
                   </Button>
                 </div>
-                <p className="mt-3 text-[11px] text-gray-500">
-                  {lang === "ar"
-                    ? "وضع اختبار Stripe — استخدم بطاقة 4242 4242 4242 4242 للتجربة"
-                    : "Stripe test mode — use card 4242 4242 4242 4242 to try"}
-                </p>
               </div>
             </div>
           )}
@@ -172,34 +111,9 @@ export default function Settings() {
         <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
           <div className="flex items-center gap-2">
             <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            <h2 className="font-semibold">{t("settings_sheets")}</h2>
+            <h2 className="font-semibold">{t("settings_google_sheets")}</h2>
           </div>
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium">{lang === "ar" ? "حساب Google Sheets" : "Google Sheets Account"}</p>
-              <p className="text-xs text-muted-foreground">
-                {sheets.connected 
-                  ? (lang === "ar" ? "متصل بنجاح" : "Connected successfully") 
-                  : (lang === "ar" ? "غير متصل حالياً" : "Not connected")}
-              </p>
-            </div>
-            {sheets.connected ? (
-              <Button variant="outline" size="sm" onClick={async () => {
-                await api.post("/oauth/sheets/disconnect");
-                loadSheets();
-                toast.success(lang === "ar" ? "تم قطع الاتصال" : "Disconnected");
-              }}>
-                {lang === "ar" ? "قطع الاتصال" : "Disconnect"}
-              </Button>
-            ) : (
-              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={async () => {
-                const { data } = await api.get(`/oauth/sheets/login?token=${localStorage.getItem("df_token")}`);
-                window.location.href = data.url;
-              }}>
-                {lang === "ar" ? "ربط الحساب" : "Connect Account"}
-              </Button>
-            )}
-          </div>
+          <p className="text-sm text-muted-foreground">{sheets.configured ? (sheets.connected ? t("settings_sheets_connected") : t("settings_sheets_connect")) : t("settings_sheets_not_configured")}</p>
         </div>
 
         {/* Logout */}

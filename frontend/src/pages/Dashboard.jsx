@@ -55,7 +55,7 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const usagePct = stats ? Math.round((stats.pages_used / stats.pages_limit) * 100) : 0;
+  const usagePct = stats ? Math.min(100, Math.round((stats.pages_used / (stats.pages_limit || 20)) * 100)) : 0;
 
   return (
     <AppShell>
@@ -132,7 +132,7 @@ export default function Dashboard() {
             </Link>
           </div>
 
-          {!stats || stats.recent.length === 0 ? (
+          {!stats || (stats.recent || []).length === 0 ? (
             <div className="bg-white border border-dashed border-gray-300 rounded-2xl p-12 text-center" data-testid="dashboard-empty">
               <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-50 flex items-center justify-center mb-4">
                 <Sparkles className="w-8 h-8 text-indigo-600" />
@@ -146,7 +146,7 @@ export default function Dashboard() {
           ) : (
             <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
               <ul className="divide-y divide-gray-100">
-                {stats.recent.map((d) => {
+                {(stats.recent || []).map((d) => {
                   const meta = statusMeta(d.status, t);
                   const Icon = meta.icon;
                   return (
