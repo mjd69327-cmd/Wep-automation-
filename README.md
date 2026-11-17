@@ -38,7 +38,7 @@ Recommended variables:
 - GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI: configure Google sign-in; register the exact callback URL in Google Cloud.
 - REACT_APP_BACKEND_URL: only set this at frontend build time when the API is hosted on a different origin. Leave it unset for the same-origin Render deployment.
 
-Do not commit credentials. The public repository has previously tracked .env files; .gitignore does not untrack files already committed. Rotate any real credentials that appeared in those files and remove them from repository history before relying on them again. Put replacements in Render's secret/environment settings, not in source or chat.
+Do not commit credentials. This PR removes the .env files from the current branch snapshot, but earlier commits and the existing default-branch history may still contain old copies. Rotate any real credentials and clean the Git history before relying on replacement keys. Put replacements in Render's secret/environment settings, not in source or chat. No .env values were read while preparing this branch.
 
 ## Data and privacy notes
 
